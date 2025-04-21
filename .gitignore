@@ -1,0 +1,10 @@
+# Local config
+config.local.js
+
+# Python
+__pycache__/
+*.py[cod]
+
+# OS
+.DS_Store
+Thumbs.db 
