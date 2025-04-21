@@ -179,13 +179,11 @@ async function queryUIthub(repoUrl) {
         // Extract owner and repo from GitHub URL
         const { owner, repo } = parseGitHubUrl(repoUrl);
         
-        // Construct UIthub URL - using the main endpoint with JSON response
+        // Construct UIthub URL - no auth needed for public repos
         const uithubUrl = `https://uithub.com/${owner}/${repo}?accept=application%2Fjson&maxTokens=50000`;
-        const token = sessionStorage.getItem('github_token');
         
         const response = await fetch(uithubUrl, {
             headers: {
-                'Authorization': `Bearer ${token}`,
                 'Accept': 'application/json'
             }
         });
@@ -225,7 +223,7 @@ async function handleRepoLink() {
     linkRepoButton.innerHTML = 'Linking...<span class="spinner"></span>';
     linkedRepoInfo.innerHTML = `
         <div class="loading-text">
-            <span>Processing repository</span>
+            <span>Verifying repository access</span>
             <span class="spinner"></span>
         </div>
     `;
@@ -234,15 +232,7 @@ async function handleRepoLink() {
         const { owner, repo } = parseGitHubUrl(repoUrl);
         const token = sessionStorage.getItem('github_token');
         
-        // Update loading message for GitHub verification
-        linkedRepoInfo.innerHTML = `
-            <div class="loading-text">
-                <span>Verifying repository access</span>
-                <span class="spinner"></span>
-            </div>
-        `;
-        
-        // Verify repository access
+        // Verify repository access with GitHub
         const response = await fetch(`https://api.github.com/repos/${owner}/${repo}`, {
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -264,7 +254,7 @@ async function handleRepoLink() {
             </div>
         `;
         
-        // Query UIthub API
+        // Query UIthub API (no auth needed for public repos)
         const uithubData = await queryUIthub(repoUrl);
         
         // Store both GitHub and UIthub data
