@@ -173,13 +173,32 @@ async function checkRepoAccess(owner, repo) {
     }
 }
 
+// Function to query UIthub API
+async function queryUIthub(repoUrl) {
+    try {
+        const uithubUrl = `${repoUrl}?accept=application%2Fjson&maxTokens=50000`;
+        const response = await fetch(uithubUrl);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Error querying UIthub:', error);
+        throw error;
+    }
+}
+
 // Function to handle repository linking
 async function handleRepoLink() {
     const repoUrlInput = document.getElementById('repo-url');
+    const linkRepoButton = document.getElementById('link-repo');
     const linkedRepoInfo = document.getElementById('linked-repo-info');
     const testPrContainer = document.getElementById('test-pr-container');
     
-    if (!repoUrlInput || !linkedRepoInfo || !testPrContainer) {
+    if (!repoUrlInput || !linkRepoButton || !linkedRepoInfo || !testPrContainer) {
         console.error('Required DOM elements not found');
         return;
     }
@@ -190,9 +209,27 @@ async function handleRepoLink() {
         return;
     }
 
+    // Disable button and show loading state
+    linkRepoButton.disabled = true;
+    linkRepoButton.innerHTML = 'Linking...<span class="spinner"></span>';
+    linkedRepoInfo.innerHTML = `
+        <div class="loading-text">
+            <span>Processing repository</span>
+            <span class="spinner"></span>
+        </div>
+    `;
+
     try {
         const { owner, repo } = parseGitHubUrl(repoUrl);
         const token = sessionStorage.getItem('github_token');
+        
+        // Update loading message for GitHub verification
+        linkedRepoInfo.innerHTML = `
+            <div class="loading-text">
+                <span>Verifying repository access</span>
+                <span class="spinner"></span>
+            </div>
+        `;
         
         // Verify repository access
         const response = await fetch(`https://api.github.com/repos/${owner}/${repo}`, {
@@ -207,10 +244,38 @@ async function handleRepoLink() {
         }
 
         const repoData = await response.json();
-        sessionStorage.setItem('linked_repo', JSON.stringify({ owner, repo, url: repoUrl }));
         
+        // Update loading message for UIthub query
+        linkedRepoInfo.innerHTML = `
+            <div class="loading-text">
+                <span>Fetching repository statistics</span>
+                <span class="spinner"></span>
+            </div>
+        `;
+        
+        // Query UIthub API
+        const uithubUrl = repoUrl.replace('github.com', 'uithub.com');
+        const uithubData = await queryUIthub(uithubUrl);
+        
+        // Store both GitHub and UIthub data
+        sessionStorage.setItem('linked_repo', JSON.stringify({ 
+            owner, 
+            repo, 
+            url: repoUrl,
+            uithubData 
+        }));
+        
+        // Update UI with repository info and UIthub stats
         linkedRepoInfo.innerHTML = `
             <p>✓ Successfully linked to: <strong>${repoData.full_name}</strong></p>
+            <div class="uithub-stats mt-3">
+                <h4>Repository Stats:</h4>
+                <ul>
+                    <li>Total Tokens: ${uithubData.size.totalTokens.toLocaleString()}</li>
+                    <li>Characters: ${uithubData.size.characters.toLocaleString()}</li>
+                    <li>Lines: ${uithubData.size.lines.toLocaleString()}</li>
+                </ul>
+            </div>
         `;
         testPrContainer.style.display = 'block';
     } catch (error) {
@@ -220,6 +285,10 @@ async function handleRepoLink() {
         `;
         testPrContainer.style.display = 'none';
         sessionStorage.removeItem('linked_repo');
+    } finally {
+        // Re-enable button and restore original text
+        linkRepoButton.disabled = false;
+        linkRepoButton.innerHTML = 'Link Repo';
     }
 }
 
@@ -329,6 +398,43 @@ async function handleCreateTestPr() {
     }
 }
 
+// Function to validate OpenAI API key format
+function validateOpenAIKey(key) {
+    // OpenAI API keys start with 'sk-' and are 51 characters long
+    return key.startsWith('sk-') && key.length === 51;
+}
+
+// Function to handle OpenAI API key submission
+function handleOpenAIKeySubmit() {
+    const keyInput = document.getElementById('openai-key-input');
+    const keyStatus = document.getElementById('openai-key-status');
+    const key = keyInput.value.trim();
+
+    if (!key) {
+        keyStatus.innerHTML = '<p style="color: var(--error-color)">Please enter an OpenAI API key</p>';
+        return;
+    }
+
+    try {
+        localStorage.setItem('openai_api_key', key);
+        keyStatus.innerHTML = '<p class="success-message">API key saved successfully!</p>';
+        keyInput.value = ''; // Clear the input for security
+    } catch (error) {
+        console.error('Error saving API key:', error);
+        keyStatus.innerHTML = '<p style="color: var(--error-color)">Failed to save API key. Please try again.</p>';
+    }
+}
+
+// Function to check for existing OpenAI API key
+function checkExistingOpenAIKey() {
+    const keyStatus = document.getElementById('openai-key-status');
+    const savedKey = localStorage.getItem('openai_api_key');
+    
+    if (savedKey) {
+        keyStatus.innerHTML = '<p class="success-message">API key is already saved</p>';
+    }
+}
+
 // Initialize the UI based on session storage
 document.addEventListener('DOMContentLoaded', async () => {
     const submitButton = document.getElementById('submit-token');
@@ -336,11 +442,19 @@ document.addEventListener('DOMContentLoaded', async () => {
         submitButton.addEventListener('click', handleTokenSubmit);
     }
 
+    const saveOpenAIKeyButton = document.getElementById('save-openai-key');
+    if (saveOpenAIKeyButton) {
+        saveOpenAIKeyButton.addEventListener('click', handleOpenAIKeySubmit);
+    }
+
     document.body.addEventListener('click', (e) => {
         if (e.target && e.target.id === 'logout') {
             handleLogout();
         }
     });
+
+    // Check for existing OpenAI API key
+    checkExistingOpenAIKey();
 
     const storedToken = sessionStorage.getItem('github_token');
     const storedUser = sessionStorage.getItem('github_user');

@@ -7,6 +7,7 @@
     --border-color: #e1e4e8;
     --error-color: #cb2431;
     --link-color: #0366d6;
+    --success-color: #28a745;
 }
 
 * {
@@ -239,4 +240,106 @@ footer {
 
 .mt-4 {
     margin-top: 16px;
+}
+
+.mb-4 {
+    margin-bottom: 2rem;
+}
+
+.mt-2 {
+    margin-top: 0.5rem;
+}
+
+.api-key-section, .github-section {
+    padding: 1.5rem;
+    background: var(--card-background);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    margin-bottom: 1.5rem;
+}
+
+.api-key-section h3, .github-section h3 {
+    margin-bottom: 1rem;
+    color: var(--secondary-color);
+}
+
+.success-message {
+    color: var(--success-color);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.success-message:before {
+    content: "✓";
+    font-weight: bold;
+}
+
+.uithub-stats {
+    background-color: var(--card-background);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 1rem;
+    margin-top: 1rem;
+}
+
+.uithub-stats h4 {
+    color: var(--secondary-color);
+    margin-bottom: 0.5rem;
+}
+
+.uithub-stats ul {
+    list-style: none;
+    padding: 0;
+}
+
+.uithub-stats li {
+    display: inline-block;
+    margin-right: 1.5rem;
+    color: var(--text-color);
+}
+
+.uithub-stats li:last-child {
+    margin-right: 0;
+}
+
+.spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: #fff;
+    animation: spin 1s ease-in-out infinite;
+    margin-left: 8px;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.btn-primary:disabled {
+    background-color: var(--border-color);
+    cursor: not-allowed;
+    transform: none;
+}
+
+.btn-primary:disabled:hover {
+    background-color: var(--border-color);
+    transform: none;
+}
+
+.loading-text {
+    color: var(--text-color);
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.loading-text .spinner {
+    border: 2px solid rgba(46, 164, 79, 0.3);
+    border-top-color: var(--primary-color);
 } 

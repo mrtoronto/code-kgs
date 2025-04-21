@@ -17,18 +17,30 @@
         <main>
             <div class="auth-section">
                 <h2>Get Started</h2>
-                <p>To get started, you'll need to create a GitHub Personal Access Token (classic) with the following scopes:</p>
-                <ul class="scope-list">
-                    <li>repo (Full control of private repositories)</li>
-                </ul>
-                <p><a href="https://github.com/settings/tokens/new" target="_blank" class="link-primary">Create a new token →</a></p>
-                <div class="token-input-container">
-                    <input type="password" id="token-input" placeholder="Paste your token here" />
-                    <button id="submit-token" class="btn-primary">Connect</button>
+                <div class="api-key-section mb-4">
+                    <h3>OpenAI API Key</h3>
+                    <p>Provide your OpenAI API key to enable AI-powered features:</p>
+                    <div class="token-input-container">
+                        <input type="password" id="openai-key-input" placeholder="Paste your OpenAI API key here" />
+                        <button id="save-openai-key" class="btn-primary">Save Key</button>
+                    </div>
+                    <div id="openai-key-status" class="mt-2"></div>
                 </div>
-                <div id="user-info"></div>
-                <div id="test-pr-container" style="display: none;">
-                    <button id="create-test-pr" class="btn-secondary">Create Test PR</button>
+                <div class="github-section">
+                    <h3>GitHub Access</h3>
+                    <p>To get started, you'll need to create a GitHub Personal Access Token (classic) with the following scopes:</p>
+                    <ul class="scope-list">
+                        <li>repo (Full control of private repositories)</li>
+                    </ul>
+                    <p><a href="https://github.com/settings/tokens/new" target="_blank" class="link-primary">Create a new token →</a></p>
+                    <div class="token-input-container">
+                        <input type="password" id="token-input" placeholder="Paste your token here" />
+                        <button id="submit-token" class="btn-primary">Connect</button>
+                    </div>
+                    <div id="user-info"></div>
+                    <div id="test-pr-container" style="display: none;">
+                        <button id="create-test-pr" class="btn-secondary">Create Test PR</button>
+                    </div>
                 </div>
             </div>
             
