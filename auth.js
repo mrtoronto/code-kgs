@@ -176,8 +176,19 @@ async function checkRepoAccess(owner, repo) {
 // Function to query UIthub API
 async function queryUIthub(repoUrl) {
     try {
-        const uithubUrl = `${repoUrl}?accept=application%2Fjson&maxTokens=50000`;
-        const response = await fetch(uithubUrl);
+        // Extract owner and repo from GitHub URL
+        const { owner, repo } = parseGitHubUrl(repoUrl);
+        
+        // Construct UIthub URL - using the main endpoint with JSON response
+        const uithubUrl = `https://uithub.com/${owner}/${repo}?accept=application%2Fjson&maxTokens=50000`;
+        const token = sessionStorage.getItem('github_token');
+        
+        const response = await fetch(uithubUrl, {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Accept': 'application/json'
+            }
+        });
         
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -254,8 +265,7 @@ async function handleRepoLink() {
         `;
         
         // Query UIthub API
-        const uithubUrl = repoUrl.replace('github.com', 'uithub.com');
-        const uithubData = await queryUIthub(uithubUrl);
+        const uithubData = await queryUIthub(repoUrl);
         
         // Store both GitHub and UIthub data
         sessionStorage.setItem('linked_repo', JSON.stringify({ 
