@@ -24,7 +24,7 @@ jobs:
         uses: actions/configure-pages@v4
       - name: Replace OAuth Client ID
         run: |
-          sed -i "s/__GITHUB_OAUTH_CLIENT_ID__/${{ secrets.GITHUB_OAUTH_CLIENT_ID }}/g" auth.js
+          sed -i "s/__GITHUB_OAUTH_CLIENT_ID__/${{ secrets.GH_OAUTH_CLIENT_ID }}/g" auth.js
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
